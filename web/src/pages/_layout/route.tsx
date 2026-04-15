@@ -22,17 +22,27 @@ export const Route = createFileRoute("/_layout")({
       });
     }
   },
-  async loader() {
-    const userInfo = await queryClient.fetchQuery({
-      queryKey: ["user-info"],
-      queryFn: () => getUserInfo(),
-    });
-    useAppStore.setState(state => {
-      return {
-        ...state,
-        userInfo: Object.freeze(userInfo),
-      };
-    });
+  async loader({ location }) {
+    try {
+      const userInfo = await queryClient.fetchQuery({
+        queryKey: ["user-info"],
+        queryFn: () => getUserInfo(),
+      });
+      useAppStore.setState(state => {
+        return {
+          ...state,
+          userInfo: Object.freeze(userInfo),
+        };
+      });
+    } catch {
+      useAppStore.setState(() => ({ isAuthenticated: false }), true);
+      throw redirect({
+        to: "/login",
+        search: {
+          redirect: location.href,
+        },
+      });
+    }
   },
 });
 

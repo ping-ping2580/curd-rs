@@ -43,7 +43,12 @@ impl AsyncAuthorizeRequest<Body> for JWTAuth {
                 .transpose()?
                 .ok_or_else(|| ApiError::Unauthenticated(String::from("Authorization请求头必须存在")))?;
 
-            let principal = jwt.decode(token).map_err(|err| ApiError::Internal(err))?;
+            let principal = jwt.decode(token).map_err(|err| {
+                match err.downcast::<jsonwebtoken::errors::Error>() {
+                    Ok(jwt_err) => ApiError::JWT(jwt_err),
+                    Err(other) => ApiError::Internal(other),
+                }
+            })?;
             request.extensions_mut().insert(principal);
 
             Ok(request)

@@ -8,61 +8,78 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-// Import Routes
+import { Route as rootRouteImport } from "./../pages/__root";
+import { Route as LayoutRouteRouteImport } from "./../pages/_layout/route";
+import { Route as LayoutIndexRouteImport } from "./../pages/_layout/index";
+import { Route as CommonLoginRouteImport } from "./../pages/_common/login";
 
-import { Route as rootRoute } from "./../pages/__root";
-import { Route as LayoutRouteImport } from "./../pages/_layout/route";
-import { Route as LayoutIndexImport } from "./../pages/_layout/index";
-import { Route as CommonLoginImport } from "./../pages/_common/login";
-
-// Create/Update Routes
-
-const LayoutRouteRoute = LayoutRouteImport.update({
+const LayoutRouteRoute = LayoutRouteRouteImport.update({
   id: "/_layout",
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any);
-
-const LayoutIndexRoute = LayoutIndexImport.update({
+const LayoutIndexRoute = LayoutIndexRouteImport.update({
   id: "/",
   path: "/",
   getParentRoute: () => LayoutRouteRoute,
 } as any);
-
-const CommonLoginRoute = CommonLoginImport.update({
+const CommonLoginRoute = CommonLoginRouteImport.update({
   id: "/_common/login",
   path: "/login",
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any);
 
-// Populate the FileRoutesByPath interface
+export interface FileRoutesByFullPath {
+  "/": typeof LayoutIndexRoute;
+  "/login": typeof CommonLoginRoute;
+}
+export interface FileRoutesByTo {
+  "/login": typeof CommonLoginRoute;
+  "/": typeof LayoutIndexRoute;
+}
+export interface FileRoutesById {
+  __root__: typeof rootRouteImport;
+  "/_layout": typeof LayoutRouteRouteWithChildren;
+  "/_common/login": typeof CommonLoginRoute;
+  "/_layout/": typeof LayoutIndexRoute;
+}
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath;
+  fullPaths: "/" | "/login";
+  fileRoutesByTo: FileRoutesByTo;
+  to: "/login" | "/";
+  id: "__root__" | "/_layout" | "/_common/login" | "/_layout/";
+  fileRoutesById: FileRoutesById;
+}
+export interface RootRouteChildren {
+  LayoutRouteRoute: typeof LayoutRouteRouteWithChildren;
+  CommonLoginRoute: typeof CommonLoginRoute;
+}
 
 declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
     "/_layout": {
       id: "/_layout";
       path: "";
-      fullPath: "";
-      preLoaderRoute: typeof LayoutRouteImport;
-      parentRoute: typeof rootRoute;
-    };
-    "/_common/login": {
-      id: "/_common/login";
-      path: "/login";
-      fullPath: "/login";
-      preLoaderRoute: typeof CommonLoginImport;
-      parentRoute: typeof rootRoute;
+      fullPath: "/";
+      preLoaderRoute: typeof LayoutRouteRouteImport;
+      parentRoute: typeof rootRouteImport;
     };
     "/_layout/": {
       id: "/_layout/";
       path: "/";
       fullPath: "/";
-      preLoaderRoute: typeof LayoutIndexImport;
-      parentRoute: typeof LayoutRouteImport;
+      preLoaderRoute: typeof LayoutIndexRouteImport;
+      parentRoute: typeof LayoutRouteRoute;
+    };
+    "/_common/login": {
+      id: "/_common/login";
+      path: "/login";
+      fullPath: "/login";
+      preLoaderRoute: typeof CommonLoginRouteImport;
+      parentRoute: typeof rootRouteImport;
     };
   }
 }
-
-// Create and export the route tree
 
 interface LayoutRouteRouteChildren {
   LayoutIndexRoute: typeof LayoutIndexRoute;
@@ -76,70 +93,10 @@ const LayoutRouteRouteWithChildren = LayoutRouteRoute._addFileChildren(
   LayoutRouteRouteChildren,
 );
 
-export interface FileRoutesByFullPath {
-  "": typeof LayoutRouteRouteWithChildren;
-  "/login": typeof CommonLoginRoute;
-  "/": typeof LayoutIndexRoute;
-}
-
-export interface FileRoutesByTo {
-  "/login": typeof CommonLoginRoute;
-  "/": typeof LayoutIndexRoute;
-}
-
-export interface FileRoutesById {
-  __root__: typeof rootRoute;
-  "/_layout": typeof LayoutRouteRouteWithChildren;
-  "/_common/login": typeof CommonLoginRoute;
-  "/_layout/": typeof LayoutIndexRoute;
-}
-
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath;
-  fullPaths: "" | "/login" | "/";
-  fileRoutesByTo: FileRoutesByTo;
-  to: "/login" | "/";
-  id: "__root__" | "/_layout" | "/_common/login" | "/_layout/";
-  fileRoutesById: FileRoutesById;
-}
-
-export interface RootRouteChildren {
-  LayoutRouteRoute: typeof LayoutRouteRouteWithChildren;
-  CommonLoginRoute: typeof CommonLoginRoute;
-}
-
 const rootRouteChildren: RootRouteChildren = {
   LayoutRouteRoute: LayoutRouteRouteWithChildren,
   CommonLoginRoute: CommonLoginRoute,
 };
-
-export const routeTree = rootRoute
+export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>();
-
-/* ROUTE_MANIFEST_START
-{
-  "routes": {
-    "__root__": {
-      "filePath": "__root.tsx",
-      "children": [
-        "/_layout",
-        "/_common/login"
-      ]
-    },
-    "/_layout": {
-      "filePath": "_layout/route.tsx",
-      "children": [
-        "/_layout/"
-      ]
-    },
-    "/_common/login": {
-      "filePath": "_common/login.tsx"
-    },
-    "/_layout/": {
-      "filePath": "_layout/index.tsx",
-      "parent": "/_layout"
-    }
-  }
-}
-ROUTE_MANIFEST_END */
