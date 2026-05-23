@@ -3,3 +3,8 @@
 .DS_Store
 /web/node_modules
 /web/dist
+.env
+.ace-tool/
+**/.DS_Store
+*.log
+*.tmp
